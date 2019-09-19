@@ -15,10 +15,11 @@ public class AgentMovement
 
     public void ExecuteForces(AgentInput input)
     {
-        Vector3 desired = Vector3.zero;
-        if (input.moveDirection != 0)
-            desired = speedLimit * (Quaternion.AngleAxis(-(input.moveDirection - 1) * 45, Vector3.up) * Vector3.right);
+        float x = 0;
+        float z = 0;
 
+        Vector3 desired = Quaternion.AngleAxis(input.moveDirection * 45, -Vector3.up) * Vector3.right;
+        desired = speedLimit * desired * Mathf.Clamp01(input.movePower);
         float speedDifference = (desired - agent.velocity).magnitude;
         Vector3 forceDirection = (desired - adjustCoefficient * agent.velocity).normalized;
         agent.AddForce(forceMultiplier * agent.mass * speedDifference * forceDirection);

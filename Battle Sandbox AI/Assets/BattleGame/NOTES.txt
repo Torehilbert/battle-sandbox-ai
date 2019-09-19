@@ -1,0 +1,6 @@
+Issues:
+- Currently hitting shooter when firing
+
+Backlog:
+- Networked controller (For potential AI in Python) via Socket connection on localhost.
+- ..

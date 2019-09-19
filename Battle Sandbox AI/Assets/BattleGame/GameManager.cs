@@ -6,16 +6,19 @@ using UnityEngine;
 
 public class GameManager: MonoBehaviour
 {
+    //Events start
+
+    //Events end
+
     public const int numberOfAgents = 3;
     public const int numberOfObstacles = 3;
     public const int numberOfSpawnEntries = 5;
 
     [Range(1, 100)] public int speedMultiplier = 1;
 
-    List<SpawnEntry> spawnEntries = new List<SpawnEntry>();
+    List<Vector3> spawnEntries = new List<Vector3>();
     List<Agent> agents = new List<Agent>();
     List<Obstacle> obstacles = new List<Obstacle>();
-    List<Gold> goldCoins = new List<Gold>();
 
     void Awake()
     {
@@ -28,9 +31,10 @@ public class GameManager: MonoBehaviour
         SpawnObstacles();
         SpawnSpawnEntries();
         SpawnAgents();
+
+        // Custom code
         agents.Add(new Agent(Vector3.zero));
         agents[agents.Count - 1].AddControl(Agent.ControlType.Human);
-        SpawnCoin();
     }
 
     void ResetWorld()
@@ -59,28 +63,22 @@ public class GameManager: MonoBehaviour
                 Debug.Log("RETRY!");
                 spawnPosition = new Vector3(UnityEngine.Random.Range(-4, 4f), 0, UnityEngine.Random.Range(-4, 4f));
             }
-
-            SpawnEntry entry = new SpawnEntry(spawnPosition);
-            spawnEntries.Add(entry);
+            spawnEntries.Add(spawnPosition);
         }
     }
 
     void SpawnAgents()
     {
-        List<SpawnEntry> shuffledEntries = spawnEntries.OrderBy(item => Guid.NewGuid()).ToList();
+        List<Vector3> shuffledEntries = spawnEntries.OrderBy(item => Guid.NewGuid()).ToList();
         for (int i = 0; i < numberOfAgents; i++)
         {
-            Agent agent = new Agent(shuffledEntries[i].GetPosition());
-            agent.AddControl(Agent.ControlType.ForwardBack);
+            Agent agent = new Agent(shuffledEntries[i]);
+            if(i%2==0)
+                agent.AddControl(Agent.ControlType.ForwardBack);
+            else
+                agent.AddControl(Agent.ControlType.Random);
             agents.Add(agent);
         }
-    }
-
-    void SpawnCoin()
-    {
-        Vector3 position = new Vector3(UnityEngine.Random.Range(-4f, 4), 0, UnityEngine.Random.Range(-4f, 4));
-        Gold gold = new Gold(position);
-        goldCoins.Add(gold);
     }
 
     void CleanWorld(bool resetSpawnEntries, bool resetObstacles)
@@ -92,13 +90,7 @@ public class GameManager: MonoBehaviour
         agents = new List<Agent>();
 
         if (resetSpawnEntries)
-        {
-            for (int i = 0; i < spawnEntries.Count; i++)
-            {
-                spawnEntries[i].Destroy();
-            }
-            spawnEntries = new List<SpawnEntry>();
-        }
+            spawnEntries = new List<Vector3>();
 
         if (resetObstacles)
         {
@@ -116,6 +108,7 @@ public class GameManager: MonoBehaviour
         {
             ExecuteGameLoop();
         }
+        Debug.Log("HP: "+agents[agents.Count - 1].HPModule.HP);
     }
 
     
@@ -128,4 +121,6 @@ public class GameManager: MonoBehaviour
         }
         Physics.Simulate(Time.fixedDeltaTime);
     }
+
+    
 }
